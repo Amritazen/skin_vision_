@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+uploads/
+yolov8n-seg.pt
+docker-compose.yml
+Dockerfile
+README.md
