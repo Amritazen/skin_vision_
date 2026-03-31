@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Medical Professional Palette - Clean, Trustworthy, Modern */
+  /* Primary: Trustworthy Blue */
+  --primary: 215 90% 48%; 
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary: Soft Medical Green/Teal */
+  --secondary: 170 60% 95%;
+  --secondary-foreground: 170 90% 25%;
+  
+  /* Danger: Alert Red */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Neutrals: Clean White & Greys */
+  --background: 210 20% 99%; /* Very subtle blue tint */
+  --foreground: 215 25% 20%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 20%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 25% 20%;
+  
+  --muted: 210 20% 96%;
+  --muted-foreground: 215 15% 50%;
+  
+  --accent: 215 30% 94%;
+  --accent-foreground: 215 90% 48%;
+  
+  --border: 214 20% 90%;
+  --input: 214 20% 90%;
+  --ring: 215 90% 48%;
+  
+  --radius: 0.75rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    @apply font-bold tracking-tight text-slate-900;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500;
+  }
+  
+  .safe-area-padding {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
