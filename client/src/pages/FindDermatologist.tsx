@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, ExternalLink, Star } from "lucide-react";
+import { Search, MapPin, ExternalLink, Star, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 
 export default function FindDermatologist() {
   const [location, setLocation] = useState("");
@@ -17,14 +18,22 @@ export default function FindDermatologist() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-10 md:pt-24">
+    <div className="min-h-screen bg-slate-50 pb-24 md:pb-10 md:pt-24 font-sans">
       <Navigation />
 
       <div className="bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-12 text-center">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4">
-            Find a Specialist Near You
-          </h1>
+        <div className="max-w-5xl mx-auto px-6 py-12">
+          <Link href="/analyze">
+            <Button variant="ghost" className="mb-6 text-slate-500 hover:text-primary gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Analyze
+            </Button>
+          </Link>
+          
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4">
+              Find a Specialist Near You
+            </h1>
           <p className="text-slate-500 max-w-xl mx-auto mb-8">
             Connect with certified dermatologists for professional diagnosis and treatment options.
           </p>
@@ -46,6 +55,7 @@ export default function FindDermatologist() {
           </form>
         </div>
       </div>
+    </div>
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="flex items-center justify-between mb-6">

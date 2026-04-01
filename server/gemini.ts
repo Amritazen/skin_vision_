@@ -29,36 +29,71 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
 
   try {
     // Switching to gemini-flash-latest as per available model list
+    // Switching to gemini-1.5-flash for speed but with full prompt
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
       generationConfig: {
         temperature: 0.1, 
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048,
         responseMimeType: "application/json",
       },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+      ],
     });
 
     const prompt = `
-      Analyze this skin lesion image.
-      Focus on ABCDE criteria (Asymmetry, Border, Color, Diameter, Evolution).
+      [STRICT CLINICAL PROTOCOL: DERMATOLOGICAL ONCOLOGY SCREENING]
+      Analyze this skin lesion image for MELANOMA risk using ABCDE criteria.
       
       Response format (Strict JSON):
       {
         "result": "Melanoma" | "Not Melanoma" | "Healthy Skin",
         "confidence": integer (1-100),
         "hasLesion": boolean,
-        "analysis": "Brief clinical findings for A, B, C, D, E."
+        "detections": [
+          {
+            "box": [ymin, xmin, ymax, xmax],
+            "confidence": number (0-1),
+            "label": "Suspicious Lesion"
+          }
+        ],
+        "analysis": "Step-by-step clinical breakdown of A, B, C, D findings."
       }
     `;
 
     const mimeType = imagePath.endsWith(".png") ? "image/png" : "image/jpeg";
     const imagePart = fileToGenerativePart(imagePath, mimeType);
 
-    console.log(`[gemini] Analyzing image...`);
+    console.log(`[gemini] Analyzing image with full diagnostic protocol...`);
     const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
     const text = response.text();
     
-    const data = JSON.parse(text);
+    // Robustly extract JSON from output
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("Invalid response from AI diagnostic engine.");
+    }
+
+    const data = JSON.parse(jsonMatch[0]);
     
     // Normalize Result Labels
     const resultStr = (data.result || "").toLowerCase();
@@ -70,16 +105,32 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
       data.result = "Healthy Skin";
     }
 
+    // Default detections if missing
+    if (!data.detections) data.detections = [];
+
+    // Coordinate conversion for UI
+    if (data.detections && data.detections.length > 0) {
+      data.detections = data.detections.map((det: any) => {
+        const [ymin, xmin, ymax, xmax] = det.box;
+        return {
+          ...det,
+          box: [xmin, ymin, xmax, ymax]
+        };
+      });
+    }
+
     return data;
   } catch (error: any) {
     if (error.status === 429 || error.message?.includes("quota")) {
       if (retries > 0) {
-        const delay = 2000; // Reduced to 2s
+        const delay = 3000; // 3s backoff
         await new Promise(resolve => setTimeout(resolve, delay));
         return analyzeSkinImage(imagePath, retries - 1);
       }
-      throw new Error("Service busy. Please try again in a moment.");
+      throw new Error("Service is temporarily busy. Please wait a moment.");
     }
+    
+    console.error(`[gemini] Diagnostic failure: ${error.message}`);
     throw error;
   }
 }
