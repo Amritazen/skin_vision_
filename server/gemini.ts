@@ -34,29 +34,8 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
       model: "gemini-1.5-flash",
       generationConfig: {
         temperature: 0.1, 
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 2048,
         responseMimeType: "application/json",
       },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-      ],
     });
 
     const prompt = `
