@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { UploadZone } from "@/components/UploadZone";
+import { Button } from "@/components/ui/button";
 import { useCreateScan } from "@/hooks/use-scans";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Brain, ShieldCheck, Smartphone } from "lucide-react";
+import { Brain, ShieldCheck, Smartphone, ArrowLeft, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Analyze() {
     const [_, setLocation] = useLocation();
@@ -91,6 +93,20 @@ export default function Analyze() {
                         description="Your medical data is encrypted and secure. We value your privacy."
                     />
                 </div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="max-w-5xl mx-auto px-6 pb-20 flex justify-between items-center">
+                <Link href="/">
+                    <Button variant="outline" className="rounded-full px-8 py-6 gap-2 border-slate-200 text-slate-600 hover:bg-slate-50">
+                        <ArrowLeft className="w-4 h-4" /> Back to Home
+                    </Button>
+                </Link>
+                <Link href="/dermatologist">
+                    <Button className="rounded-full px-8 py-6 gap-2 shadow-lg shadow-primary/10 font-bold">
+                        Next Step: Find Doctor <ArrowRight className="w-4 h-4" />
+                    </Button>
+                </Link>
             </div>
         </div>
     );

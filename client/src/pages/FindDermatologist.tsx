@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, ExternalLink, Star, ArrowLeft } from "lucide-react";
+import { Search, MapPin, ExternalLink, Star, ArrowLeft, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 
@@ -144,6 +144,20 @@ export default function FindDermatologist() {
               >
                 {logoutMutation.isPending ? "Logging out..." : "Log Out"}
               </Button>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="mt-16 flex justify-between items-center pb-12 pt-8 border-t border-slate-100">
+                <Link href="/analyze">
+                    <Button variant="outline" className="rounded-full px-8 py-6 gap-2 border-slate-200 text-slate-600 hover:bg-slate-50">
+                        <ArrowLeft className="w-4 h-4" /> Back to Analyze
+                    </Button>
+                </Link>
+                <Link href="/self-care">
+                    <Button className="rounded-full px-8 py-6 gap-2 shadow-lg shadow-primary/10 font-bold">
+                        Next Step: Daily Tips <ArrowRight className="w-4 h-4" />
+                    </Button>
+                </Link>
             </div>
           </div>
         </>

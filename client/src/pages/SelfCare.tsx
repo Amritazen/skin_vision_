@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { UVWidget } from "@/components/UVWidget";
-import { Sun, Droplets, Calendar, Eye, Clock, ShieldCheck, Sparkles, Wind, CheckCircle2, Mail, Loader2, ArrowRight, ExternalLink } from "lucide-react";
+import { Sun, Droplets, Calendar, Eye, Clock, ShieldCheck, Sparkles, Wind, CheckCircle2, Mail, Loader2, ArrowRight, ExternalLink, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -347,6 +348,15 @@ export default function SelfCare() {
               <strong>Clinical Note:</strong> Regardless of your skin type, melanoma can occur in any individual. People with darker skin (Types IV-VI) should pay special attention to areas like palms, soles of the feet, and under nails.
             </p>
           </div>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="mt-16 flex justify-start items-center pb-20 pt-8 border-t border-blue-100">
+            <Link href="/dermatologist">
+                <Button variant="outline" className="rounded-full px-8 py-6 gap-2 border-blue-200 text-blue-700 hover:bg-blue-50 bg-white shadow-sm">
+                    <ArrowLeft className="w-4 h-4" /> Back to Find Doctor
+                </Button>
+            </Link>
         </div>
       </div>
     </div>

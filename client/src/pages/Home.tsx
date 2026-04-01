@@ -1,7 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ShieldCheck, Brain, Smartphone, Activity, BarChart, Heart } from "lucide-react";
+import { ShieldCheck, Brain, Smartphone, Activity, BarChart, Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -128,6 +128,17 @@ export default function Home() {
               description="Your scans are processed with end-to-end encryption to ensure total data sovereignty."
             />
           </div>
+        </div>
+      </section>
+
+      {/* Navigation Button */}
+      <section className="bg-slate-50 pb-24">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+            <Link href="/analyze">
+                <Button size="lg" className="rounded-full px-12 py-7 text-xl font-bold shadow-xl shadow-blue-200 hover:scale-105 transition-all gap-3 bg-blue-600 hover:bg-blue-700">
+                    Next Step: Analyze Skin <ArrowRight className="w-6 h-6" />
+                </Button>
+            </Link>
         </div>
       </section>
     </div>
