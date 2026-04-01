@@ -124,8 +124,13 @@ export async function registerRoutes(
   });
 
   app.get(api.scans.list.path, async (req, res) => {
-    const scans = await storage.getScans();
-    res.json(scans);
+    try {
+      const scans = await storage.getScans();
+      res.json(scans);
+    } catch (err: any) {
+      console.error("[server] Failed to list scans:", err);
+      res.status(500).json({ message: "Failed to load scans: " + err.message });
+    }
   });
 
   // UV Index Proxy

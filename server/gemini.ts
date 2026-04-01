@@ -40,8 +40,8 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
             parts: [
               { text: "Perform a dermatological assessment of this skin lesion. You MUST return exactly this JSON format: { \"result\": \"Melanoma\" | \"Not Melanoma\" | \"Healthy Skin\", \"confidence\": number (1-100), \"hasLesion\": boolean, \"detections\": [{ \"box\": [ymin, xmin, ymax, xmax], \"label\": \"Suspicious\" }], \"analysis\": \"Clinical breakdown of A, B, C, D findings.\" }" },
               {
-                inline_data: {
-                  mime_type: "image/jpeg",
+                inlineData: {
+                  mimeType: "image/jpeg",
                   data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
                 },
               },
@@ -50,7 +50,7 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
         ],
         generationConfig: {
           temperature: 0.1,
-          response_mime_type: "application/json",
+          responseMimeType: "application/json",
         },
       };
 
