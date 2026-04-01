@@ -65,10 +65,10 @@ export default function SelfCare() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-10 md:pt-24">
+    <div className="min-h-screen bg-slate-50 pb-24 md:pb-10 md:pt-12">
       <Navigation />
 
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">Daily Self-Care</h1>
         <p className="text-slate-500 mb-8">Monitor UV levels and maintain healthy skin habits.</p>
 
