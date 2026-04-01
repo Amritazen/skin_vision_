@@ -17,14 +17,15 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=5000
+# Render assigns PORT dynamically (default 10000); the app reads process.env.PORT
+ENV PORT=10000
 
-# Copy production dependencies mapping and build artifacts
+# Copy production dependencies and build artifacts
 COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 5000
+EXPOSE 10000
 
 CMD ["node", "dist/index.cjs"]

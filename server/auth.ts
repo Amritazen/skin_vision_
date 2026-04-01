@@ -30,16 +30,19 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export function setupAuth(app: Express) {
     const sessionSettings: session.SessionOptions = {
-        secret: process.env.REPL_ID || "melanoma-detect-secret",
+        secret: process.env.SESSION_SECRET || "melanoma-detect-fallback-secret-change-in-prod",
         resave: false,
         saveUninitialized: false,
         store: storage.sessionStore,
         cookie: {
-            secure: app.get("env") === "production",
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
         },
     };
 
-    if (app.get("env") === "production") {
+    // Trust Render's reverse proxy so secure cookies work over HTTPS
+    if (process.env.NODE_ENV === "production") {
         app.set("trust proxy", 1);
     }
 
