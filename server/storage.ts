@@ -1,6 +1,7 @@
 import {
   users,
   scans,
+  reminders,
   type User,
   type InsertUser,
   type InsertScan,
@@ -10,8 +11,13 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -25,6 +31,54 @@ export interface IStorage {
   createReminder(reminder: InsertReminder): Promise<Reminder>;
 
   sessionStore: session.Store;
+}
+
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
+    });
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async createScan(insertScan: InsertScan): Promise<Scan> {
+    const [scan] = await db.insert(scans).values({
+      ...insertScan,
+      analyzedAt: new Date(),
+    }).returning();
+    return scan;
+  }
+
+  async getScan(id: number): Promise<Scan | undefined> {
+    const [scan] = await db.select().from(scans).where(eq(scans.id, id));
+    return scan;
+  }
+
+  async getScans(): Promise<Scan[]> {
+    return await db.select().from(scans).orderBy(desc(scans.analyzedAt));
+  }
+
+  async createReminder(insertReminder: InsertReminder): Promise<Reminder> {
+    const [reminder] = await db.insert(reminders).values(insertReminder).returning();
+    return reminder;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -102,4 +156,6 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = process.env.DATABASE_URL
+  ? new DatabaseStorage()
+  : new MemStorage();
