@@ -2,84 +2,51 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/ge
 import fs from "fs";
 import path from "path";
 
-// Initialize Gemini API
 const apiKey = process.env.GEMINI_API_KEY || "";
-if (!apiKey) {
-  console.warn("[gemini] Warning: GEMINI_API_KEY is not set. Image analysis will fail.");
-}
 const genAI = new GoogleGenerativeAI(apiKey);
-
-/**
- * Converts local file information to a GoogleGenerativeAI.Part object.
- */
-function fileToGenerativePart(path: string, mimeType: string) {
-  return {
-    inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-      mimeType,
-    },
-  };
-}
 
 export async function analyzeSkinImage(imagePath: string, retries = 3) {
   const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
-  const apiKey = process.env.GEMINI_API_KEY || "";
   let lastError: any = null;
 
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set in environment variables.");
+    console.error("[server] GEMINI_API_KEY is not set.");
+    throw new Error("API Key is missing. Please add it to your Render environment variables.");
   }
+
+  console.log(`[server] Node version: ${process.version}`);
+  console.log(`[server] Using API Key starting with: ${apiKey.substring(0, 4)}...`);
 
   for (const modelName of modelsToTry) {
     try {
-      console.log(`[gemini] REST Attempt: ${modelName} (v1 stable)`);
+      console.log(`[gemini] SDK Attempt: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
       
-      const payload = {
-        contents: [
-          {
-            parts: [
-              { text: "Perform a dermatological assessment of this skin lesion. You MUST return exactly this JSON format: { \"result\": \"Melanoma\" | \"Not Melanoma\" | \"Healthy Skin\", \"confidence\": number (1-100), \"hasLesion\": boolean, \"detections\": [{ \"box\": [ymin, xmin, ymax, xmax], \"label\": \"Suspicious\" }], \"analysis\": \"Clinical breakdown of A, B, C, D findings.\" }" },
-              {
-                inlineData: {
-                  mimeType: "image/jpeg",
-                  data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
-                },
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          responseMimeType: "application/json",
+      const prompt = `
+        Perform a dermatological assessment of this skin lesion.
+        You MUST return exactly this JSON format:
+        {
+          "result": "Melanoma" | "Not Melanoma" | "Healthy Skin",
+          "confidence": number (1-100),
+          "hasLesion": boolean,
+          "detections": [{ "box": [ymin, xmin, ymax, xmax], "label": "Suspicious" }],
+          "analysis": "Clinical breakdown of A, B, C, D findings."
+        }
+      `;
+
+      const imagePart = {
+        inlineData: {
+          data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
+          mimeType: "image/jpeg",
         },
       };
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-      }
-
-      const resData: any = await response.json();
-      const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!text) {
-        throw new Error("Empty response from AI engine.");
-      }
-
-      // Robustly extract JSON from output
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+      const text = response.text();
+      
       const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Invalid response from AI diagnostic engine.");
-      }
+      if (!jsonMatch) throw new Error("Invalid JSON response.");
 
       const data = JSON.parse(jsonMatch[0]);
       
@@ -94,26 +61,19 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
       }
 
       if (!data.detections) data.detections = [];
-
-      // Coordinate conversion for UI
       if (data.detections && data.detections.length > 0) {
         data.detections = data.detections.map((det: any) => {
           const [ymin, xmin, ymax, xmax] = det.box;
-          return {
-            ...det,
-            box: [xmin, ymin, xmax, ymax]
-          };
+          return { ...det, box: [xmin, ymin, xmax, ymax] };
         });
       }
 
-      console.log(`[gemini] Success with model: ${modelName} (REST v1 stable)`);
+      console.log(`[gemini] Success with model: ${modelName}`);
       return data;
-
     } catch (error: any) {
       lastError = error;
       console.warn(`[gemini] Model ${modelName} failed: ${error.message}`);
       
-      // Handle Quota with Retries
       if (error.message?.includes("429") || error.message?.includes("quota")) {
         if (retries > 0) {
           const delay = 3000;
@@ -122,16 +82,12 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
         }
       }
       
-      // If it's a 404, we continue the loop for the next model
       if (error.message?.includes("404") || error.message?.includes("not found")) {
         continue;
       }
-      
-      // For other errors, we continue the loop too, as Pro might have fewer restrictions than Flash
       continue;
     }
   }
 
-  console.error(`[gemini] All models failed. Last error: ${lastError?.message}`);
-  throw lastError || new Error("Failed to initialize AI model.");
+  throw lastError || new Error("AI analysis initialization failed.");
 }
