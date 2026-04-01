@@ -61,11 +61,12 @@ export function useCreateScan() {
       });
 
       if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
         if (res.status === 400) {
-          const error = api.scans.create.responses[400].parse(await res.json());
+          const error = api.scans.create.responses[400].parse(errorData);
           throw new Error(error.message);
         }
-        throw new Error("Failed to analyze image");
+        throw new Error(errorData.message || "Failed to analyze image");
       }
       return api.scans.create.responses[201].parse(await res.json());
     },

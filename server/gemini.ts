@@ -60,29 +60,26 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
     });
 
     const prompt = `
-      [STRICT CLINICAL PROTOCOL: DERMATOLOGICAL ONCOLOGY SCREENING]
-      Analyze this skin lesion image for MELANOMA risk using ABCDE criteria.
-      
-      Response format (Strict JSON):
+      Perform a dermatological assessment of this skin lesion.
+      You MUST return exactly this JSON format:
       {
         "result": "Melanoma" | "Not Melanoma" | "Healthy Skin",
-        "confidence": integer (1-100),
+        "confidence": number (1-100),
         "hasLesion": boolean,
-        "detections": [
-          {
-            "box": [ymin, xmin, ymax, xmax],
-            "confidence": number (0-1),
-            "label": "Suspicious Lesion"
-          }
-        ],
-        "analysis": "Step-by-step clinical breakdown of A, B, C, D findings."
+        "detections": [{ "box": [ymin, xmin, ymax, xmax], "label": "Suspicious" }],
+        "analysis": "Clinical breakdown of A, B, C, D findings."
       }
     `;
 
-    const mimeType = imagePath.endsWith(".png") ? "image/png" : "image/jpeg";
-    const imagePart = fileToGenerativePart(imagePath, mimeType);
+    const mimeType = "image/jpeg"; 
+    const imagePart = {
+        inlineData: {
+            data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
+            mimeType,
+        },
+    };
 
-    console.log(`[gemini] Analyzing image with full diagnostic protocol...`);
+    console.log(`[gemini] Starting analysis for: ${imagePath}`);
     const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
     const text = response.text();

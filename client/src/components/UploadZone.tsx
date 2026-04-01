@@ -120,10 +120,9 @@ export function UploadZone({ onImageSelected, isAnalyzing }: UploadZoneProps) {
       return;
     }
     
-    // Optimize before sending
-    const optimized = await optimizeImage(file);
-    onImageSelected(optimized);
-  }, [onImageSelected, toast, optimizeImage]);
+    // Pass the original file directly
+    onImageSelected(file);
+  }, [onImageSelected, toast]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
