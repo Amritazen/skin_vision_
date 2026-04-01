@@ -71,7 +71,46 @@ export function UploadZone({ onImageSelected, isAnalyzing }: UploadZoneProps) {
     }
   }, [onImageSelected]);
 
-  const handleFile = useCallback((file: File) => {
+  const optimizeImage = useCallback(async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1024;
+        const MAX_HEIGHT = 1024;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', 0.8);
+      };
+    });
+  }, []);
+
+  const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid file type",
@@ -80,8 +119,11 @@ export function UploadZone({ onImageSelected, isAnalyzing }: UploadZoneProps) {
       });
       return;
     }
-    onImageSelected(file);
-  }, [onImageSelected, toast]);
+    
+    // Optimize before sending
+    const optimized = await optimizeImage(file);
+    onImageSelected(optimized);
+  }, [onImageSelected, toast, optimizeImage]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

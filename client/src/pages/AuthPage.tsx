@@ -1,15 +1,19 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, InsertUser } from "@shared/schema";
-import { Loader2, Facebook, Github, Linkedin } from "lucide-react";
+import { Loader2, ShieldCheck, Stethoscope } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AuthPage() {
     const { user, loginMutation, registerMutation } = useAuth();
     const [, setLocation] = useLocation();
-    const [isLoginMode, setIsLoginMode] = useState(true);
 
     useEffect(() => {
         if (user) {
@@ -33,126 +37,151 @@ export default function AuthPage() {
     const onRegister = (data: InsertUser) => registerMutation.mutate(data);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f6f5f7] p-4 font-sans">
-            <div className={`flex flex-col w-full max-w-[900px] min-h-[550px] bg-white rounded-[2rem] overflow-hidden shadow-2xl relative ${!isLoginMode ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-
-                {/* Form Section */}
-                <div className="w-full md:w-3/5 p-8 md:p-12 flex flex-col items-center justify-center transition-all duration-500 ease-in-out bg-white z-0">
-                    <h1 className="text-4xl font-bold mb-6 text-slate-800 tracking-tight">
-                        {isLoginMode ? "Sign In" : "Create Account"}
-                    </h1>
-
-                    <div className="flex gap-4 mb-6">
-                        <button type="button" className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors shadow-sm">
-                            <Facebook className="w-5 h-5 fill-current" />
-                        </button>
-                        <button type="button" className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors shadow-sm">
-                            <Github className="w-5 h-5 fill-current" />
-                        </button>
-                        <button type="button" className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors shadow-sm">
-                            <Linkedin className="w-5 h-5 fill-current border-0" />
-                        </button>
+        <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
+            {/* Left side: branding/promo */}
+            <div className="hidden md:flex flex-1 bg-[#304ba3] text-white p-12 flex-col justify-between relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent" />
+                
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-12">
+                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                            <Stethoscope className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-2xl font-display font-bold tracking-tight">SkinVision</span>
                     </div>
-
-                    <p className="text-[13px] text-slate-400 mb-6 font-medium tracking-wide">
-                        {isLoginMode ? "or use your account" : "or use your email for registration"}
+                    
+                    <h1 className="text-5xl font-display font-bold leading-tight mb-6">
+                        AI-Powered <br />
+                        <span className="text-blue-200">Skin Health</span> Support.
+                    </h1>
+                    <p className="text-xl text-blue-100/80 max-w-md leading-relaxed font-light">
+                        Expert dermatological assessment backed by clinical-grade computer vision models.
                     </p>
-
-                    {isLoginMode ? (
-                        <form onSubmit={loginForm.handleSubmit(onLogin)} className="w-full max-w-[320px] flex flex-col items-center">
-                            <div className="w-full mb-4">
-                                <input
-                                    {...loginForm.register("username")}
-                                    type="text"
-                                    placeholder="Username"
-                                    className="w-full bg-[#f3f4f6] border-none rounded-lg px-4 py-3.5 text-slate-700 outline-none focus:ring-2 focus:ring-[#304ba3]/30 transition-all font-medium placeholder:font-normal placeholder:text-slate-400 text-sm"
-                                />
-                                {loginForm.formState.errors.username && (
-                                    <p className="text-red-500 text-xs mt-1 text-left px-2">{loginForm.formState.errors.username.message}</p>
-                                )}
-                            </div>
-                            <div className="w-full mb-4">
-                                <input
-                                    {...loginForm.register("password")}
-                                    type="password"
-                                    placeholder="Password"
-                                    className="w-full bg-[#f3f4f6] border-none rounded-lg px-4 py-3.5 text-slate-700 outline-none focus:ring-2 focus:ring-[#304ba3]/30 transition-all font-medium placeholder:font-normal placeholder:text-slate-400 text-sm"
-                                />
-                                {loginForm.formState.errors.password && (
-                                    <p className="text-red-500 text-xs mt-1 text-left px-2">{loginForm.formState.errors.password.message}</p>
-                                )}
-                            </div>
-
-                            <a href="#" className="text-[13px] text-slate-500 hover:text-[#304ba3] mb-8 transition-colors font-medium">
-                                Forgot your password?
-                            </a>
-
-                            <button
-                                type="submit"
-                                disabled={loginMutation.isPending}
-                                className="bg-[#304ba3] hover:bg-[#23387d] text-white rounded-full px-12 py-3.5 font-bold uppercase tracking-[0.1em] text-sm shadow-[0_8px_20px_-6px_rgba(48,75,163,0.5)] hover:shadow-[0_10px_25px_-6px_rgba(48,75,163,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed w-48"
-                            >
-                                {loginMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={registerForm.handleSubmit(onRegister)} className="w-full max-w-[320px] flex flex-col items-center animate-in fade-in duration-500">
-                            <div className="w-full mb-4">
-                                <input
-                                    {...registerForm.register("username")}
-                                    type="text"
-                                    placeholder="Username"
-                                    className="w-full bg-[#f3f4f6] border-none rounded-lg px-4 py-3.5 text-slate-700 outline-none focus:ring-2 focus:ring-[#304ba3]/30 transition-all font-medium placeholder:font-normal placeholder:text-slate-400 text-sm"
-                                />
-                                {registerForm.formState.errors.username && (
-                                    <p className="text-red-500 text-xs mt-1 text-left px-2">{registerForm.formState.errors.username.message}</p>
-                                )}
-                            </div>
-                            <div className="w-full mb-8">
-                                <input
-                                    {...registerForm.register("password")}
-                                    type="password"
-                                    placeholder="Password"
-                                    className="w-full bg-[#f3f4f6] border-none rounded-lg px-4 py-3.5 text-slate-700 outline-none focus:ring-2 focus:ring-[#304ba3]/30 transition-all font-medium placeholder:font-normal placeholder:text-slate-400 text-sm"
-                                />
-                                {registerForm.formState.errors.password && (
-                                    <p className="text-red-500 text-xs mt-1 text-left px-2">{registerForm.formState.errors.password.message}</p>
-                                )}
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={registerMutation.isPending}
-                                className="bg-[#304ba3] hover:bg-[#23387d] text-white rounded-full px-12 py-3.5 font-bold uppercase tracking-[0.1em] text-sm shadow-[0_8px_20px_-6px_rgba(48,75,163,0.5)] hover:shadow-[0_10px_25px_-6px_rgba(48,75,163,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed w-48"
-                            >
-                                {registerMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up"}
-                            </button>
-                        </form>
-                    )}
                 </div>
 
-                {/* Promo/Switch Section */}
-                <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col items-center justify-center text-center text-white bg-gradient-to-br from-[#304ba3] to-[#243572] transition-transform duration-500 ease-in-out relative z-10 box-border border-0 shadow-[0_0_20px_rgba(0,0,0,0.15)]">
-                    <h2 className="text-3xl lg:text-4xl font-bold mb-6 tracking-tight">
-                        {isLoginMode ? "Hey There!" : "Welcome Back!"}
-                    </h2>
-                    <p className="text-[15px] leading-relaxed opacity-90 mb-10 px-4 font-light">
-                        {isLoginMode
-                            ? "Begin your amazing journey by creating an account with us today"
-                            : "To keep connected with us please login with your personal info"}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            loginForm.reset();
-                            registerForm.reset();
-                            setIsLoginMode(!isLoginMode);
-                        }}
-                        className="bg-transparent border border-white/60 hover:border-white hover:bg-white/10 text-white rounded-full px-12 py-3 font-bold uppercase tracking-[0.1em] text-[13px] transition-all hover:scale-105 active:scale-95"
-                    >
-                        {isLoginMode ? "Sign Up" : "Sign In"}
-                    </button>
+                <div className="relative z-10 grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <ShieldCheck className="w-8 h-8 text-blue-200" />
+                        <h3 className="font-bold">Medical Grade</h3>
+                        <p className="text-sm text-blue-100/60">Trained on thousands of clinical cases.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <div className="w-8 h-8 rounded-full border-2 border-blue-200 flex items-center justify-center font-bold text-blue-200">AI</div>
+                        <h3 className="font-bold">Instant Analysis</h3>
+                        <p className="text-sm text-blue-100/60">Get results in under 5 seconds.</p>
+                    </div>
                 </div>
+            </div>
+
+            {/* Right side: Auth forms */}
+            <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+                <Card className="w-full max-w-md border-0 shadow-2xl shadow-slate-200/50 rounded-3xl overflow-hidden">
+                    <Tabs defaultValue="login" className="w-full">
+                        <CardHeader className="text-center pb-2">
+                            <div className="md:hidden flex justify-center mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center">
+                                    <Stethoscope className="w-7 h-7 text-white" />
+                                </div>
+                            </div>
+                            <CardTitle className="text-2xl font-display font-bold">Welcome back</CardTitle>
+                            <CardDescription>
+                                Access your skin health dashboard
+                            </CardDescription>
+                            
+                            <TabsList className="grid w-full grid-cols-2 mt-8 rounded-full bg-slate-100 p-1">
+                                <TabsTrigger value="login" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
+                                <TabsTrigger value="register" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>
+                            </TabsList>
+                        </CardHeader>
+                        
+                        <CardContent className="pt-6">
+                            <TabsContent value="login" className="mt-0">
+                                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="login-username">Username</Label>
+                                        <Input
+                                            id="login-username"
+                                            {...loginForm.register("username")}
+                                            placeholder="Enter your username"
+                                            className="rounded-xl border-slate-200 h-11"
+                                        />
+                                        {loginForm.formState.errors.username && (
+                                            <p className="text-red-500 text-xs mt-1">{loginForm.formState.errors.username.message}</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="login-password">Password</Label>
+                                            <button type="button" className="text-xs text-blue-600 hover:underline font-medium">Forgot password?</button>
+                                        </div>
+                                        <Input
+                                            id="login-password"
+                                            {...loginForm.register("password")}
+                                            type="password"
+                                            placeholder="••••••••"
+                                            className="rounded-xl border-slate-200 h-11"
+                                        />
+                                        {loginForm.formState.errors.password && (
+                                            <p className="text-red-500 text-xs mt-1">{loginForm.formState.errors.password.message}</p>
+                                        )}
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        disabled={loginMutation.isPending}
+                                        className="w-full rounded-xl h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-6"
+                                    >
+                                        {loginMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                                        Sign In
+                                    </Button>
+                                </form>
+                            </TabsContent>
+
+                            <TabsContent value="register" className="mt-0 font-sans">
+                                <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reg-username">Choose Username</Label>
+                                        <Input
+                                            id="reg-username"
+                                            {...registerForm.register("username")}
+                                            placeholder="Pick a unique username"
+                                            className="rounded-xl border-slate-200 h-11"
+                                        />
+                                        {registerForm.formState.errors.username && (
+                                            <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.username.message}</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reg-password">Password</Label>
+                                        <Input
+                                            id="reg-password"
+                                            {...registerForm.register("password")}
+                                            type="password"
+                                            placeholder="Minimum 6 characters"
+                                            className="rounded-xl border-slate-200 h-11"
+                                        />
+                                        {registerForm.formState.errors.password && (
+                                            <p className="text-red-500 text-xs mt-1">{registerForm.formState.errors.password.message}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex items-start gap-2 mt-4 px-1">
+                                        <input type="checkbox" id="terms" className="mt-1 accent-blue-600" required />
+                                        <label htmlFor="terms" className="text-xs text-slate-500 leading-normal">
+                                            I agree to the <button type="button" className="text-blue-600 hover:underline">Terms of Service</button> and <button type="button" className="text-blue-600 hover:underline">Privacy Policy</button>.
+                                        </label>
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        disabled={registerMutation.isPending}
+                                        className="w-full rounded-xl h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-6"
+                                    >
+                                        {registerMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                                        Create Account
+                                    </Button>
+                                </form>
+                            </TabsContent>
+                        </CardContent>
+                    </Tabs>
+                </Card>
             </div>
         </div>
     );
