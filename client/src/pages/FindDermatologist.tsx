@@ -59,7 +59,7 @@ export default function FindDermatologist() {
       ) : (
         <>
           <div className="bg-white border-b border-slate-100">
-            <div className="max-w-5xl mx-auto px-6 py-8">
+            <div className="max-w-5xl mx-auto px-6 pt-4 pb-8">
               <Link href="/analyze">
                 <Button variant="ghost" className="mb-4 text-slate-500 hover:text-primary gap-2">
                   <ArrowLeft className="w-4 h-4" />

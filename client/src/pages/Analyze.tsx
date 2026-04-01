@@ -29,12 +29,12 @@ export default function Analyze() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-24 md:pb-0 md:pt-12">
+        <div className="min-h-screen bg-slate-50 pb-24 md:pb-0 md:pt-16">
             <Navigation />
 
             <div className="relative overflow-hidden bg-white border-b border-slate-100">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-teal-50 opacity-50" />
-                <div className="max-w-5xl mx-auto px-6 py-10 md:py-12 relative z-10">
+                <div className="max-w-5xl mx-auto px-6 pt-4 pb-12 relative z-10">
                     <div className="flex flex-col md:flex-row items-center gap-12">
                         <div className="flex-1 space-y-6 text-center md:text-left">
                             <motion.div

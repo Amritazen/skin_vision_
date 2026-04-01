@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-0 md:pt-12">
+    <div className="min-h-screen bg-slate-50 pb-24 md:pb-0 md:pt-16">
       <Navigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-white border-b border-slate-100">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-teal-50 opacity-50" />
-        <div className="max-w-5xl mx-auto px-6 py-8 md:py-12 relative z-10 text-center">
+        <div className="max-w-5xl mx-auto px-6 pt-4 pb-12 md:pt-4 md:pb-16 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
