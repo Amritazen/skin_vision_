@@ -50,7 +50,7 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
         ],
         generationConfig: {
           temperature: 0.1,
-          responseMimeType: "application/json",
+          response_mime_type: "application/json",
         },
       };
 
