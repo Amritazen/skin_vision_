@@ -100,8 +100,14 @@ export async function registerRoutes(
 
         res.status(201).json(scan);
       } catch (geminiErr: any) {
-        console.error(`[server] Gemini analysis failed:`, geminiErr);
-        res.status(500).json({ message: "Analysis failed. " + geminiErr.message });
+        console.error(`[server] Scan analysis failed:`, geminiErr);
+        // Provide more helpful error messages back to the user
+        const errorMessage = geminiErr.message || "An unexpected error occurred during analysis.";
+        const statusCode = errorMessage.includes("API Key") || errorMessage.includes("Quota") ? 401 : 500;
+        res.status(statusCode).json({ 
+          message: `Analysis failed: ${errorMessage}`,
+          details: geminiErr.stack
+        });
       }
 
     } catch (err) {

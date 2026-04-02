@@ -1,30 +1,31 @@
 # Stage 1: Build the application
-FROM node:20 AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Install build dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy full source and build
+# Copy source and build
 COPY . .
 RUN npm run build
 
 # Stage 2: Create the production image
-FROM node:20 AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
-# Render assigns PORT dynamically (default 10000); the app reads process.env.PORT
 ENV PORT=10000
 
 # Copy production dependencies and build artifacts
 COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
+# Ensure the uploads directory exists in the container
+RUN mkdir -p uploads
 
 EXPOSE 10000
 

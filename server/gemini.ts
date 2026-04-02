@@ -34,10 +34,15 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
         }
       `;
 
+      const extension = path.extname(imagePath).toLowerCase();
+      const mimeType = extension === ".png" ? "image/png" : (extension === ".webp" ? "image/webp" : "image/jpeg");
+
+      console.log(`[gemini] Processing image: ${path.basename(imagePath)} (detected as ${mimeType})`);
+
       const imagePart = {
         inlineData: {
           data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
-          mimeType: "image/jpeg",
+          mimeType: mimeType,
         },
       };
 
@@ -89,5 +94,13 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
     }
   }
 
-  throw lastError || new Error("AI analysis initialization failed.");
+  if (!lastError) {
+    throw new Error("AI analysis initialization failed. Please check if GEMINI_API_KEY is correctly set in your environment variables.");
+  }
+  
+  if (lastError.message?.includes("API key not valid")) {
+    throw new Error("Invalid Gemini API Key. Please verify your credentials at Google AI Studio.");
+  }
+
+  throw lastError;
 }
