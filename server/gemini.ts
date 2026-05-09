@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/ge
 import fs from "fs";
 import path from "path";
 
-const apiKey = process.env.GEMINI_API_KEY || "";
+const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDJS4A8kSq5zz8OhPr3tSptLYLGdl-ug0E";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function analyzeSkinImage(imagePath: string, retries = 3) {
