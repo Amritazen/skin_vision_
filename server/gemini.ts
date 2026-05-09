@@ -123,11 +123,18 @@ export async function analyzeSkinImage(imagePath: string, retries = 3) {
         }
       }
       
+      if (error.message?.includes("User location") || error.message?.includes("location is not supported")) {
+        throw new Error("Google Gemini API is blocked in the region where this server is hosted. To fix this, recreate your Render Web Service and select a US region (like Oregon or Ohio) instead of Frankfurt/Europe.");
+      }
+
       if (error.message?.includes("404") || error.message?.includes("not found")) {
         continue;
       }
-      // If there's another error, we'll try the next model just in case it's a transient model issue
-      continue;
+      
+      // Don't just silently continue on all other errors, we want to see them if it's not a simple 404
+      if (modelName === modelsToTry[modelsToTry.length - 1]) {
+         throw error;
+      }
     }
   }
 
