@@ -6,7 +6,12 @@ const apiKey = process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function analyzeSkinImage(imagePath: string, retries = 3) {
-  const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+  const modelsToTry = [
+    "gemini-2.5-flash", 
+    "gemini-2.0-flash", 
+    "gemini-flash-latest",
+    "gemini-3.1-flash-lite"
+  ];
   let lastError: any = null;
 
   if (!apiKey) {
